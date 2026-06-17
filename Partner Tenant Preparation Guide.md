@@ -62,10 +62,10 @@ Most values are auto-discovered by the script. The Teams Workflows webhook and i
 Open Teams in a **web browser** (not the desktop app) and navigate to the target channel. The URL contains both IDs:
 
 ```
-https://teams.microsoft.com/l/channel/19%3Af446bef4fc0a4b42bf02ba55d64cf8be%40thread.tacv2/ChannelName?groupId=3a76443b-e51b-43b7-8cd8-af950f1e79b7&tenantId=...
+https://teams.microsoft.com/l/channel/19%3***********************%40thread.tacv2/ChannelName?groupId=*12345*&tenantId=...
 ```
 
-- **Team ID** (`groupId` query parameter): a plain GUID, e.g. `3a76443b-e51b-43b7-8cd8-af950f1e79b7`
+- **Team ID** (`groupId` query parameter): a plain GUID, e.g. `*12345*`
 - **Channel ID** (path segment after `/l/channel/`): URL-encoded in the address bar — must be **decoded** before use
 
 **Channel ID — required format and common mistakes**
@@ -78,7 +78,7 @@ Correct format:
 ```
 
 To get this from the browser URL:
-1. Copy the segment between `/l/channel/` and the next `/`: `19%3Af446bef4fc0a4b42bf02ba55d64cf8be%40thread.tacv2`
+1. Copy the segment between `/l/channel/` and the next `/`: `19%3Af4**********************8be%40thread.tacv2`
 2. Decode it: replace `%3A` → `:` and `%40` → `@`
 3. The result must start with `19:` and end with `@thread.tacv2`
 
