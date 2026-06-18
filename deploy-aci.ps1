@@ -51,8 +51,14 @@ $ContainerName       = "soc-agent"
 $SocCaseBackend      = "xdr"
 $MsSubscriptionId    = ""
 $MsSentinelWorkspace = ""
+# Anthropic backend (llm_backend: anthropic)
 $AnthropicBaseUrl    = ""
 $AnthropicApiKey     = ""
+# Azure OpenAI backend (llm_backend: azure_openai)
+$LlmBackend          = ""           # "anthropic" (default) | "azure_openai"
+$AzureOpenAiApiKey   = ""
+$AzureOpenAiEndpoint = ""
+$AzureOpenAiDeployment = ""
 $TeamsWebhookUrl     = ""
 $TeamsTeamId         = ""
 $TeamsChannelId      = ""
@@ -83,7 +89,13 @@ if (-not $SocCustomerId)    { throw "SocCustomerId is required (config file)." }
 if (-not $MsTenantId)       { throw "MsTenantId is required (config file)." }
 if (-not $MsClientId)       { throw "MsClientId is required (config file)." }
 if (-not $MsClientSecret)   { throw "MsClientSecret is required (config file)." }
-if (-not $AnthropicApiKey)  { throw "AnthropicApiKey is required - set it in the config file (Foundry) or the PROVIDER section." }
+$_effectiveBackend = if ($LlmBackend -and -not $LlmBackend.StartsWith('$')) { $LlmBackend } else { "anthropic" }
+if ($_effectiveBackend -eq "anthropic" -and -not $AnthropicApiKey) {
+    throw "AnthropicApiKey is required when llm_backend=anthropic - set it in the config file (Foundry) or the PROVIDER section."
+}
+if ($_effectiveBackend -eq "azure_openai" -and (-not $AzureOpenAiApiKey -or -not $AzureOpenAiEndpoint)) {
+    throw "AzureOpenAiApiKey and AzureOpenAiEndpoint are required when llm_backend=azure_openai."
+}
 if (-not $StorageAccount)   { throw "StorageAccount is required (config file)." }
 if (-not $ResourceGroup)    { throw "ResourceGroup is required (config file)." }
 
@@ -147,10 +159,14 @@ az container create `
         XDR_DCR_ENDPOINT="$XdrDcrEndpoint" `
         XDR_DCR_RULE_ID="$XdrDcrRuleId" `
         ANTHROPIC_BASE_URL="$AnthropicBaseUrl" `
+        LLM_BACKEND="$LlmBackend" `
+        AZURE_OPENAI_ENDPOINT="$AzureOpenAiEndpoint" `
+        AZURE_OPENAI_DEPLOYMENT="$AzureOpenAiDeployment" `
         BOOTSTRAP_URL="$BootstrapUrl" `
         BOOTSTRAP_TLS_VERIFY="$BootstrapTlsVerify" `
     --secure-environment-variables `
         ANTHROPIC_API_KEY="$AnthropicApiKey" `
+        AZURE_OPENAI_API_KEY="$AzureOpenAiApiKey" `
         BOOTSTRAP_TOKEN="$BootstrapToken" `
         MS_CLIENT_SECRET="$MsClientSecret" `
         MS_SENTINEL_WORKSPACE="$MsSentinelWorkspace" `
